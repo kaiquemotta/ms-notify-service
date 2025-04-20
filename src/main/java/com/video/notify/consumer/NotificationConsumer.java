@@ -35,7 +35,7 @@ public class NotificationConsumer {
             logger.info("Notificação processada com sucesso.");
         } catch (Exception e) {
             logger.error("Erro ao processar a notificação: {}", notification, e);
-            throw new NotificationProcessingException("Erro ao processar notificação", e);
+            throw new NotificationProcessingException("Erro ao processar notificação!!!", e);
         }
     }
 }
