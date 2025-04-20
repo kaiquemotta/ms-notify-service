@@ -10,7 +10,7 @@ jobs:
     name: Build and Analyze
     runs-on: ubuntu-latest
     outputs:
-      sonar_quality_gate_passed: ${{ steps.quality-gate.outputs.passed }}
+      sonar_quality_gate_passed: ${{ steps.quality-gate.outputs.quality_gate_passed }}
 
     steps:
       - name: Checkout do código
@@ -30,8 +30,8 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.projectKey=SEU_PROJECT_KEY
-            -Dsonar.organization=SEU_ORGANIZATION
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
