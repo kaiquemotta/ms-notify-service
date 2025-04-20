@@ -10,7 +10,7 @@ jobs:
     name: Build and Analyze
     runs-on: ubuntu-latest
     outputs:
-      sonar_quality_gate_passed: ${{ steps.quality-gate.outputs.quality_gate_passed }}
+      sonar_quality_gate_passed: ${{ steps.quality-gate.outputs.passed }}
 
     steps:
       - name: Checkout do código
@@ -39,7 +39,7 @@ jobs:
 
       - name: Checar Quality Gate
         id: quality-gate
-        uses: sonarsource/sonarcloud-quality-gate-action@master
+        uses: sonarsource/sonarcloud-quality-gate-action@v1.1.0
         with:
           scanTimeout: 300
         env:
@@ -49,7 +49,7 @@ jobs:
     name: Deploy para Heroku (se qualidade ok)
     needs: build-and-analyze
     runs-on: ubuntu-latest
-    if: needs.build-and-analyze.outputs.sonar_quality_gate_passed == 'true'
+    if: ${{ needs.build-and-analyze.outputs.sonar_quality_gate_passed == 'true' }}
 
     steps:
       - name: Checkout
