@@ -1,21 +1,34 @@
 package com.video.notify.domain.service;
 
+import com.video.notify.consumer.NotificationConsumer;
 import com.video.notify.domain.model.Notification;
 import com.video.notify.exception.NotificationProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class NotificationService {
 
+    private final EmailService emailService;
+
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
+
+    public NotificationService(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
     public void process(Notification notification) {
         try {
-            if (notification.userId() == null) {
-                throw new NotificationProcessingException("Usuário não informado na notificação.");
+            if (notification.userId() == null || notification.email() == null) {
+                throw new NotificationProcessingException("Usuário ou e-mail não informado na notificação.");
             }
-
-            // lógica da notificação (simulação):
-            System.out.println("Enviando notificação para usuário: " + notification.userId());
-
+            emailService.enviar(
+                    notification.email(),
+                    notification.subject(),
+                    notification.message()
+            );
+            logger.info("Notificação enviada para: {}", notification.email());
         } catch (Exception e) {
             throw new NotificationProcessingException("Falha ao processar notificação", e);
         }
