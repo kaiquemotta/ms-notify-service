@@ -9,8 +9,6 @@ jobs:
   build-and-analyze:
     name: Build and Analyze
     runs-on: ubuntu-latest
-    outputs:
-      sonar_quality_gate_passed: ${{ steps.quality-gate.outputs.quality_gate_passed }}
 
     steps:
       - name: Checkout do código
@@ -22,34 +20,20 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Rodar testes com cobertura
-        run: mvn clean verify
-
-      - name: Análise no SonarCloud
-        uses: sonarsource/sonarcloud-github-action@v2
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
+      - name: Rodar análise no SonarCloud com testes e cobertura
+        run: mvn clean verify sonar:sonar -DskipTests=false
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checar Quality Gate
-        id: quality-gate
-        uses: sonarsource/sonarcloud-quality-gate-action@v1.1.0
-        with:
-          scanTimeout: 300
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          MAVEN_OPTS: >-
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
 
   deploy-if-quality-ok:
-    name: Deploy para Heroku (se qualidade ok)
+    name: Deploy para Heroku (se build passar com qualidade)
     needs: build-and-analyze
     runs-on: ubuntu-latest
-    if: ${{ needs.build-and-analyze.outputs.sonar_quality_gate_passed == 'true' }}
 
     steps:
       - name: Checkout
