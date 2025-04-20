@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    aws:
+      region:
+        static: us-east-1
+      credentials:
+        access-key: FAKE
+        secret-key: FAKE
+    sqs:
+      endpoint: http://localhost:4566
+      listener:
+        enabled: false

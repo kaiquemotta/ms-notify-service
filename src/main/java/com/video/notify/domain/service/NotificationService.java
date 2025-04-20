@@ -1,6 +1,5 @@
 package com.video.notify.domain.service;
 
-import com.video.notify.consumer.NotificationConsumer;
 import com.video.notify.domain.model.Notification;
 import com.video.notify.exception.NotificationProcessingException;
 import org.slf4j.Logger;
