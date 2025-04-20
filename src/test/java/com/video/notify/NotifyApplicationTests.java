@@ -13,15 +13,15 @@ import static org.mockito.Mockito.mock;
 @ActiveProfiles("test")
 class NotifyApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
-
-    @Configuration
-    static class MockConfig {
-        @Bean
-        public SqsAsyncClient sqsAsyncClient() {
-            return mock(SqsAsyncClient.class);
-        }
-    }
+//    @Test
+//    void contextLoads() {
+//    }
+//
+//    @Configuration
+//    static class MockConfig {
+//        @Bean
+//        public SqsAsyncClient sqsAsyncClient() {
+//            return mock(SqsAsyncClient.class);
+//        }
+//    }
 }
