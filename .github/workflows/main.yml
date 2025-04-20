@@ -1,47 +1,47 @@
 name: CI/CD com SonarCloud
 
 on:
-  pull_request:
-    branches:
-      - master
   push:
-    branches:
+    branches-ignore:
+      - main
       - master
+  pull_request:
+    types: [closed]
 
 jobs:
-  build-and-analyze:
-    name: Build and Analyze
+  test-and-analyze:
+    name:  Testes e SonarCloud
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
 
-      - name: Configurar o Java
+      - name: Configurar Java 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Rodar análise no SonarCloud com testes e cobertura
-        run: mvn clean verify sonar:sonar
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
-          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+      - name: Rodar testes com cobertura + SonarCloud
+        run: |
+          mvn clean verify sonar:sonar \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy-if-pr-and-quality-ok:
-    name: Deploy para Heroku (se PR e qualidade OK)
-    needs: build-and-analyze
+  deploy-pre:
+    name: Deploy para ambiente PRE
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
 
     steps:
-      - name: Checkout
+      - name: Checkout do código
         uses: actions/checkout@v3
 
       - name: Instalar Heroku CLI
@@ -49,11 +49,11 @@ jobs:
           curl https://cli-assets.heroku.com/install.sh | sh
           export PATH="$PATH:/usr/local/bin"
 
-      - name: Deploy para o Heroku (pre)
+      - name: Fazer deploy no Heroku (ambiente PRE)
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_APP_NAME_PRE }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           usedocker: false
         env:
