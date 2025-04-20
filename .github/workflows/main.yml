@@ -21,18 +21,14 @@ jobs:
           java-version: 17
 
       - name: Rodar análise no SonarCloud com testes e cobertura
-        run: mvn clean verify sonar:sonar -DskipTests=false \
+        run: mvn clean verify sonar:sonar \
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
           -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MAVEN_OPTS: >-
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
 
   deploy-if-quality-ok:
     name: Deploy para Heroku (se build passar com qualidade)
