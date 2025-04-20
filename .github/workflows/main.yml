@@ -1,21 +1,18 @@
-name: Deploy to Heroku
+name: CI/CD com SonarCloud
 
 on:
   push:
     branches:
       - master
+
 jobs:
-  build-and-deploy:
+  build-and-analyze:
+    name: Build and Analyze
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
-
-      - name: Instalar Heroku CLI
-        run: |
-          curl https://cli-assets.heroku.com/install.sh | sh
-          export PATH="$PATH:/usr/local/bin"
 
       - name: Configurar o Java
         uses: actions/setup-java@v3
@@ -23,8 +20,34 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Construir projeto com Maven
-        run: mvn clean package -DskipTests
+      - name: Instalar dependências do Maven
+        run: mvn install -DskipTests=true
+
+      - name: Rodar testes com cobertura
+        run: mvn clean verify
+
+      - name: Upload cobertura para SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-if-quality-ok:
+    name: Deploy para Heroku (se qualidade ok)
+    needs: build-and-analyze
+    runs-on: ubuntu-latest
+    if: ${{ needs.build-and-analyze.outputs.sonar_quality_gate_passed == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Instalar Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          export PATH="$PATH:/usr/local/bin"
 
       - name: Deploy para o Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
