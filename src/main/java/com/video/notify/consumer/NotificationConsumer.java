@@ -32,7 +32,7 @@ public class NotificationConsumer {
 
         try {
             notificationService.process(notification);
-            logger.info("------------- Notificação processada com sucesso ------------- ");
+            logger.info("-------------  Notificação processada com sucesso  ------------- ");
         } catch (Exception e) {
             logger.error("Erro ao processar a notificação :( : {}", notification, e);
             throw new NotificationProcessingException("Erro ao processar notificação!!!", e);
