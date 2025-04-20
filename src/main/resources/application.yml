@@ -1,4 +1,7 @@
 spring:
+  output:
+    ansi:
+      enabled: ALWAYS
   application:
     name: notify-service
   cloud:
@@ -23,6 +26,7 @@ spring:
           auth: true
           starttls:
             enable: true
+
 
 sqs:
   notification:
