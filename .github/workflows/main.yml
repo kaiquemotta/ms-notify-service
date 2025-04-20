@@ -13,6 +13,11 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v3
 
+      - name: Instalar Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          export PATH="$PATH:/usr/local/bin"
+
       - name: Configurar o Java
         uses: actions/setup-java@v3
         with:
