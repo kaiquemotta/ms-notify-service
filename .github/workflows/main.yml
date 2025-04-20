@@ -21,7 +21,11 @@ jobs:
           java-version: 17
 
       - name: Rodar análise no SonarCloud com testes e cobertura
-        run: mvn clean verify sonar:sonar -DskipTests=false
+        run: mvn clean verify sonar:sonar -DskipTests=false \
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
