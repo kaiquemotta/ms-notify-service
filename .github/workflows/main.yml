@@ -1,6 +1,9 @@
 name: CI/CD com SonarCloud
 
 on:
+  pull_request:
+    branches:
+      - master
   push:
     branches:
       - master
@@ -21,14 +24,20 @@ jobs:
           java-version: 17
 
       - name: Rodar análise no SonarCloud com testes e cobertura
-        run: mvn clean verify sonar:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
+        run: mvn clean verify sonar:sonar
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.coverage.exclusions=**/config/**,**/model/**,**/dto/**,**/exception/**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy-if-quality-ok:
-    name: Deploy para Heroku (se build passar com qualidade)
+  deploy-if-pr-and-quality-ok:
+    name: Deploy para Heroku (se PR e qualidade OK)
     needs: build-and-analyze
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
 
     steps:
       - name: Checkout
@@ -39,11 +48,11 @@ jobs:
           curl https://cli-assets.heroku.com/install.sh | sh
           export PATH="$PATH:/usr/local/bin"
 
-      - name: Deploy para o Heroku
+      - name: Deploy para o Heroku (pre)
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME_PRE }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           usedocker: false
         env:
