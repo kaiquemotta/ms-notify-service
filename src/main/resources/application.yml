@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: notify-service
+  cloud:
+    aws:
+      region:
+        static: us-east-1
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+    sqs:
+      listener:
+        simple:
+          auto-startup: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: seu.email@gmail.com
+    password: sua-senha-de-app
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+sqs:
+  notification:
+    queue: video-notification-queue
