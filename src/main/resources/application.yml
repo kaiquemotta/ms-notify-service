@@ -30,6 +30,3 @@ sqs:
   notification:
     queue: video-notification-queue
 
-# Permite distinguir ambientes (útil para logs, métricas ou rotas condicionais)
-app:
-  environment: ${APP_ENV:local}
